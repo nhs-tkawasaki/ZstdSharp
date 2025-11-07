@@ -39,7 +39,7 @@ jobs:
           - os: ubuntu-latest
             framework: net7.0
             sdk: 7.0.x
-          - os: ubuntu-latest
+          - os: windows-latest
             framework: net8.0
             sdk: 8.0.x
           - os: ubuntu-latest
