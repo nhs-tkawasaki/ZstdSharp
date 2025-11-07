@@ -24,27 +24,27 @@ jobs:
           - os: windows-latest
             framework: netstandard2.0
             sdk: 8.0.x
-#          - os: ubuntu-latest
-#            framework: netstandard2.1
-#            sdk: 6.0.x
-#          - os: ubuntu-latest
-#            framework: netcoreapp3.1
-#            sdk: 3.1.x
-#          - os: ubuntu-latest
-#            framework: net5.0
-#            sdk: 5.0.x
-#          - os: ubuntu-latest
-#            framework: net6.0
-#            sdk: 6.0.x
-#          - os: ubuntu-latest
-#            framework: net7.0
-#            sdk: 7.0.x
-#          - os: ubuntu-latest
-#            framework: net8.0
-#            sdk: 8.0.x
-#          - os: ubuntu-latest
-#            framework: net9.0
-#            sdk: 9.0.x
+          - os: ubuntu-latest
+            framework: netstandard2.1
+            sdk: 8.0.x
+          - os: ubuntu-latest
+            framework: netcoreapp3.1
+            sdk: 3.1.x
+          - os: ubuntu-latest
+            framework: net5.0
+            sdk: 5.0.x
+          - os: ubuntu-latest
+            framework: net6.0
+            sdk: 6.0.x
+          - os: ubuntu-latest
+            framework: net7.0
+            sdk: 7.0.x
+          - os: ubuntu-latest
+            framework: net8.0
+            sdk: 8.0.x
+          - os: ubuntu-latest
+            framework: net9.0
+            sdk: 9.0.x
           # Windows ONLY for net462
           - os: windows-latest
             framework: net462
@@ -70,7 +70,16 @@ jobs:
         run: dotnet restore
 
       - name: Build (single target)
-        run: dotnet build -c Release -f ${{ matrix.framework }} --no-restore
+        run: dotnet build ZstdSharp/ZstdSharp.csproj -c Release -f ${{ matrix.framework }} --no-restore
+      - name: Build (legacy)
+        if: ${{ index(fromJson('["netcoreapp3.1","net5.0","netstandard2.0","net462"]'), matrix.framework) != -1 }}
+        run: dotnet build Zstd.Extern/Zstd.Extern.csproj -c Release -f ${{ matrix.framework }} --no-restore
+      - name: Build (runtime)
+        if: ${{ index(fromJson('["netstandard2.0","netstandard2.1"]'), matrix.framework) == -1 }}
+        run: |
+         dotnet build Sandbox/Sandbox.csproj -c Release -f ${{ matrix.framework }} --no-restore
+         dotnet build ZstdSharp.Test/ZstdSharp.Test.csproj -c Release -f ${{ matrix.framework }} --no-restore
+         dotnet build ZstdSharp.Benchmark/ZstdSharp.Benchmark.csproj Release -f ${{ matrix.framework }} --no-restore
 
       - name: Test (single target)
         # net462 のテストプロジェクトが存在しない / 失敗する場合は条件分岐で Skip
