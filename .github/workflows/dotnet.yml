@@ -12,21 +12,66 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: src
+  
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Ubuntu (現行/過去 & netstandard)
+          - os: ubuntu-latest
+            framework: netstandard2.0
+            sdk: 6.0.x
+          - os: ubuntu-latest
+            framework: netstandard2.1
+            sdk: 6.0.x
+          - os: ubuntu-latest
+            framework: netcoreapp3.1
+            sdk: 3.1.x
+          - os: ubuntu-latest
+            framework: net5.0
+            sdk: 5.0.x
+          - os: ubuntu-latest
+            framework: net6.0
+            sdk: 6.0.x
+          - os: ubuntu-latest
+            framework: net7.0
+            sdk: 7.0.x
+          - os: ubuntu-latest
+            framework: net8.0
+            sdk: 8.0.x
+          - os: ubuntu-latest
+            framework: net9.0
+            sdk: 9.0.x
+          # Windows ONLY for net462
+          - os: windows-latest
+            framework: net462
+            sdk: 8.0.x
+
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 8.0.x
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        # net462 も SDK スタイルなら dotnet SDK 必要。Visual Studio の targeting pack が runner に入っている。
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.sdk }}
+          # net9.0 が Preview の場合:
+          # include-prerelease: true
+
+      - name: Display SDK info
+        run: dotnet --info
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (single target)
+        run: dotnet build -c Release -f ${{ matrix.framework }} --no-restore
+
+      - name: Test (single target)
+        # net462 のテストプロジェクトが存在しない / 失敗する場合は条件分岐で Skip
+        run: dotnet test -c Release -f ${{ matrix.framework }} --no-build --verbosity normal
