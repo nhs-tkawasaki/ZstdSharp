@@ -72,10 +72,10 @@ jobs:
       - name: Build (single target)
         run: dotnet build ZstdSharp/ZstdSharp.csproj -c Release -f ${{ matrix.framework }} --no-restore
       - name: Build (legacy)
-        if: ${{ index(fromJson('["netcoreapp3.1","net5.0","netstandard2.0","net462"]'), matrix.framework) != -1 }}
+        if: ${{ contains(fromJson('["netcoreapp3.1","net5.0","netstandard2.0","net462"]'), matrix.framework) }}
         run: dotnet build Zstd.Extern/Zstd.Extern.csproj -c Release -f ${{ matrix.framework }} --no-restore
       - name: Build (runtime)
-        if: ${{ index(fromJson('["netstandard2.0","netstandard2.1"]'), matrix.framework) == -1 }}
+        if: ${{ !contains(fromJson('["netstandard2.0","netstandard2.1"]'), matrix.framework) }}
         run: |
          dotnet build Sandbox/Sandbox.csproj -c Release -f ${{ matrix.framework }} --no-restore
          dotnet build ZstdSharp.Test/ZstdSharp.Test.csproj -c Release -f ${{ matrix.framework }} --no-restore
