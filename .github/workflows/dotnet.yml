@@ -79,7 +79,7 @@ jobs:
         run: |
          dotnet build Sandbox/Sandbox.csproj -c Release -f ${{ matrix.framework }} --no-restore
          dotnet build ZstdSharp.Test/ZstdSharp.Test.csproj -c Release -f ${{ matrix.framework }} --no-restore
-         dotnet build ZstdSharp.Benchmark/ZstdSharp.Benchmark.csproj Release -f ${{ matrix.framework }} --no-restore
+         dotnet build ZstdSharp.Benchmark/ZstdSharp.Benchmark.csproj -c Release -f ${{ matrix.framework }} --no-restore
 
       - name: Test (single target)
         # net462 のテストプロジェクトが存在しない / 失敗する場合は条件分岐で Skip
